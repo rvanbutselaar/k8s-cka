@@ -33,6 +33,22 @@ spec:
     - name: nginx
       image: nginx:1.14.0-alpine
 EOF
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-acc
+  labels:
+    app: nginx
+    version: "1.14.0"
+    environment: acc
+    tier: frontend
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.14.0-alpine
+EOF
 ```
 
 ```
@@ -73,6 +89,9 @@ EOF
 kubectl get po --show-labels
 kubectl get po -l environment=dev --show-labels
 kubectl get po -l tier=frontend --show-labels
+kubectl create service clusterip nginx-svc --tcp=8181:80 -o yaml --dry-run | kubectl set selector --local -f - 'app=nginx' -o yaml | kubectl create -f -
+kubectl get svc -o wide
+kubectl describe svc nginx-svc
 ```
 
 
@@ -127,4 +146,36 @@ spec:
 EOF
 
 kubectl get po --show-labels -l app=redis -o wide
+```
+
+
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: nginx-prod
+  name: nginx-prod
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: nginx-prod
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: nginx-prod
+        app: nginx
+        environment: prod
+    spec:
+      containers:
+      - image: nginx:1.14.0-alpine
+        name: nginx-prod
+        resources: {}
+status: {}
+EOF
 ```
