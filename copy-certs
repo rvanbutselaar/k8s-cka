@@ -1,0 +1,13 @@
+for instance in node1; do
+  scp ca.pem ${instance}-key.pem ${instance}.pem root@192.168.178.59:
+done
+
+for instance in node2; do
+  scp ca.pem ${instance}-key.pem ${instance}.pem root@192.168.178.31:
+done
+
+
+for instance in master1; do
+  scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
+    service-account-key.pem service-account.pem root@192.168.178.25:
+done

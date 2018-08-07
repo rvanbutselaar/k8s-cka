@@ -1,0 +1,27 @@
+# manual:
+
+route add -net 10.200.20.0 netmask 255.255.255.0 gw 192.168.178.31
+route add -net 10.200.10.0 netmask 255.255.255.0 gw 192.168.178.59
+
+
+# flanne:
+vim /etc/systemd/system/kubelet.service
+  --allow-privileged=true \
+systemctl daemon-reload && systemctl restart kubelet.service
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+
+vim /etc/systemd/system/kube-controller-manager.service
+--allocate-node-cidrs=true \
+--cluster-cidr=10.200.0.0/16 \
+
+systemctl daemon-reload && systemctl restart kube-controller-manager.service
+systemctl restart kubelet.service
+
+
+{
+  "Network": "10.200.0.0/16",
+  "Backend": {
+    "Type": "vxlan"
+  }
+}
