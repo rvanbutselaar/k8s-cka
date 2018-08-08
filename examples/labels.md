@@ -147,35 +147,3 @@ EOF
 
 kubectl get po --show-labels -l app=redis -o wide
 ```
-
-
-```
-cat <<EOF | kubectl apply -f -
-apiVersion: apps/v1beta1
-kind: Deployment
-metadata:
-  creationTimestamp: null
-  labels:
-    run: nginx-prod
-  name: nginx-prod
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      run: nginx-prod
-  strategy: {}
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        run: nginx-prod
-        app: nginx
-        environment: prod
-    spec:
-      containers:
-      - image: nginx:1.14.0-alpine
-        name: nginx-prod
-        resources: {}
-status: {}
-EOF
-```
