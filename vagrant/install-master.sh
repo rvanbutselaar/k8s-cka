@@ -204,7 +204,6 @@ Documentation=https://github.com/kubernetes/kubernetes
 ExecStart=/usr/local/bin/kube-controller-manager \\
   --address=0.0.0.0 \\
   --cluster-cidr=10.200.0.0/16 \\
-  #--allocate-node-cidrs=true \\
   --cluster-name=kubernetes \\
   --cluster-signing-cert-file=/var/lib/kubernetes/ca.pem \\
   --cluster-signing-key-file=/var/lib/kubernetes/ca-key.pem \\
@@ -454,9 +453,6 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
 EOF
-
-# echo 'Create flannel'
-# /usr/local/bin/kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/v0.10.0/Documentation/kube-flannel.yml
 
 echo 'Create Kubernetes dashboard'
 /usr/local/bin/kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml

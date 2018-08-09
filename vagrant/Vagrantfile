@@ -73,7 +73,6 @@ Vagrant.configure(2) do |config|
         #
         node.vm.provision :shell, :upload_path => "/home/vagrant/prepare-install.sh", :path => "./prepare.sh"
         node.vm.provision :shell, :upload_path => "/home/vagrant/install-etcd.sh", :path => "./install-etcd.sh"
-        # node.vm.provision :shell, :upload_path => "/home/vagrant/install-etcd.sh", :path => "./install-flannel.sh"
         node.vm.provision :shell, :upload_path => "/home/vagrant/install-master.sh", :path => "./install-master.sh"
       end
     end
