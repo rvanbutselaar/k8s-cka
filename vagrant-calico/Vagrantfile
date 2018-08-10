@@ -1,0 +1,102 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+# cpu = # cpu per VM
+cpu = 1
+
+#
+# mem = MB ram per VM
+#
+mem = 1024
+
+#
+# Do not update guest utils on vms
+#
+vbguest_auto_update = false
+
+#
+# project name will be used to generate hostnames: <project#{node_nr}>
+#
+project = 'kube'
+
+#
+# Check if config needs to be generated
+#
+if ARGV[0] == 'up' || ARGV[0] == 'reload'
+  update_config = true
+end
+
+Vagrant.configure(2) do |config|
+
+    #
+    # vm specs
+    #
+    config.vm.provider "virtualbox" do |v|
+      v.memory = mem
+      v.cpus = cpu
+    end
+
+    #
+    # Use insecure key
+    config.ssh.insert_key = false
+    #
+
+    #
+    # M = total masters to create
+    # N = total nodes to create
+    #
+    M = 1
+    N = 2
+
+    #
+    # Local username
+    #
+    $local_username ||= `whoami`
+
+    #
+    # Create master nodes
+    #
+    (1..M).each do | node_nr |
+      hostname = project + "-master#{node_nr}"
+      random_ssh_port = (30000..65534).to_a.sample
+
+      config.vm.define hostname do | node |
+        node.vbguest.auto_update = vbguest_auto_update
+        node.vm.box = 'sentia-centos-7'
+        node.vm.box_url = "http://vagrant.sentia.net/vagrant/sentia-centos7"
+        node.vm.hostname = hostname
+        node.vm.network :forwarded_port, guest: 22, host: random_ssh_port, id: "ssh"
+        node.vm.network "private_network", ip: "10.0.0.11#{node_nr}"
+
+        #
+        # Provision VMs using shell
+        #
+        node.vm.provision :shell, :upload_path => "/home/vagrant/prepare-install.sh", :path => "./prepare.sh"
+        node.vm.provision :shell, :upload_path => "/home/vagrant/install-etcd.sh", :path => "./install-etcd.sh"
+        node.vm.provision :shell, :upload_path => "/home/vagrant/install-master.sh", :path => "./install-master.sh"
+      end
+    end
+
+    #
+    # Create worker nodes
+    #
+    (1..N).each do | node_nr |
+      hostname = project + "-node#{node_nr}"
+      random_ssh_port = (30000..65534).to_a.sample
+
+      config.vm.define hostname do | node |
+        node.vbguest.auto_update = vbguest_auto_update
+        node.vm.box = 'sentia-centos-7'
+        node.vm.box_url = "http://vagrant.sentia.net/vagrant/sentia-centos7"
+        node.vm.hostname = hostname
+        node.vm.network :forwarded_port, guest: 22, host: random_ssh_port, id: "ssh"
+        node.vm.network "private_network", ip: "10.0.0.21#{node_nr}"
+
+        #
+        # Provision VMs using shell
+        #
+        node.vm.provision :shell, :upload_path => "/home/vagrant/prepare.sh", :path => "./prepare.sh"
+        node.vm.provision :shell, :upload_path => "/home/vagrant/install-node.sh", :path => "./install-node.sh"
+      end
+    end
+end
