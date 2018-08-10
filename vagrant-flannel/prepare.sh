@@ -25,6 +25,6 @@ EOF
 sysctl -p
 
 echo 'Install requirements'
-yum install -y docker wget net-tools nmap-ncat
+yum install -y docker wget net-tools nmap-ncat tcpdump
 
 systemctl enable docker && systemctl start docker

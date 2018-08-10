@@ -1,6 +1,6 @@
 #!/bin/sh
 KUBERNETES_PUBLIC_ADDRESS=10.0.0.111
-POD_CIDR=10.200.`hostname|tail -c2`0.0/24
+POD_CIDR=10.200.`hostname|tail -c2`.0/24
 
 echo 'Create dirs'
 mkdir -p \
@@ -69,31 +69,31 @@ echo 'Generate config'
 
 /usr/local/bin/kubectl config use-context default --kubeconfig=/var/lib/kubernetes/kube-proxy.kubeconfig
 
-echo 'Configure CNI'
-cat <<EOF | sudo tee /etc/cni/net.d/10-bridge.conf
-{
-    "cniVersion": "0.3.1",
-    "name": "bridge",
-    "type": "bridge",
-    "bridge": "cnio0",
-    "isGateway": true,
-    "ipMasq": true,
-    "ipam": {
-        "type": "host-local",
-        "ranges": [
-          [{"subnet": "${POD_CIDR}"}]
-        ],
-        "routes": [{"dst": "0.0.0.0/0"}]
-    }
-}
-EOF
-
-cat <<EOF | sudo tee /etc/cni/net.d/99-loopback.conf
-{
-    "cniVersion": "0.3.1",
-    "type": "loopback"
-}
-EOF
+# echo 'Configure CNI'
+# cat <<EOF | sudo tee /etc/cni/net.d/10-bridge.conf
+# {
+#     "cniVersion": "0.3.1",
+#     "name": "bridge",
+#     "type": "bridge",
+#     "bridge": "cnio0",
+#     "isGateway": true,
+#     "ipMasq": true,
+#     "ipam": {
+#         "type": "host-local",
+#         "ranges": [
+#           [{"subnet": "${POD_CIDR}"}]
+#         ],
+#         "routes": [{"dst": "0.0.0.0/0"}]
+#     }
+# }
+# EOF
+#
+# cat <<EOF | sudo tee /etc/cni/net.d/99-loopback.conf
+# {
+#     "cniVersion": "0.3.1",
+#     "type": "loopback"
+# }
+# EOF
 
 echo 'Configure kubelet'
 cat <<EOF | sudo tee /var/lib/kubelet/kubelet-config.yaml
@@ -111,7 +111,6 @@ authorization:
 clusterDomain: "cluster.local"
 clusterDNS:
   - "10.32.0.10"
-podCIDR: "${POD_CIDR}"
 runtimeRequestTimeout: "15m"
 tlsCertFile: "/var/lib/kubelet/${HOSTNAME}.pem"
 tlsPrivateKeyFile: "/var/lib/kubelet/${HOSTNAME}-key.pem"

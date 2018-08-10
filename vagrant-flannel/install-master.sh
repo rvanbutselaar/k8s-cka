@@ -261,31 +261,31 @@ EOF
 
 
 
-echo 'Configure CNI'
-cat <<EOF | sudo tee /etc/cni/net.d/10-bridge.conf
-{
-    "cniVersion": "0.3.1",
-    "name": "bridge",
-    "type": "bridge",
-    "bridge": "cnio0",
-    "isGateway": true,
-    "ipMasq": true,
-    "ipam": {
-        "type": "host-local",
-        "ranges": [
-          [{"subnet": "${POD_CIDR}"}]
-        ],
-        "routes": [{"dst": "0.0.0.0/0"}]
-    }
-}
-EOF
-
-cat <<EOF | sudo tee /etc/cni/net.d/99-loopback.conf
-{
-    "cniVersion": "0.3.1",
-    "type": "loopback"
-}
-EOF
+# echo 'Configure CNI'
+# cat <<EOF | sudo tee /etc/cni/net.d/10-bridge.conf
+# {
+#     "cniVersion": "0.3.1",
+#     "name": "bridge",
+#     "type": "bridge",
+#     "bridge": "cnio0",
+#     "isGateway": true,
+#     "ipMasq": true,
+#     "ipam": {
+#         "type": "host-local",
+#         "ranges": [
+#           [{"subnet": "${POD_CIDR}"}]
+#         ],
+#         "routes": [{"dst": "0.0.0.0/0"}]
+#     }
+# }
+# EOF
+#
+# cat <<EOF | sudo tee /etc/cni/net.d/99-loopback.conf
+# {
+#     "cniVersion": "0.3.1",
+#     "type": "loopback"
+# }
+# EOF
 
 echo 'Configure kubelet'
 cat <<EOF | sudo tee /var/lib/kubelet/kubelet-config.yaml
@@ -454,6 +454,12 @@ metadata:
     kubernetes.io/cluster-service: "true"
     addonmanager.kubernetes.io/mode: Reconcile
 EOF
+
+echo 'Configure master taint'
+/usr/local/bin/kubectl taint nodes kube-master1 node-role.kubernetes.io/master=:NoSchedule
+
+echo 'Create Kubernetes dashboard'
+/usr/local/bin/kubectl apply -f /vagrant/kube-flannel.yml
 
 echo 'Create Kubernetes dashboard'
 /usr/local/bin/kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
