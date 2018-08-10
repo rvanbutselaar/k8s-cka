@@ -454,6 +454,9 @@ metadata:
     addonmanager.kubernetes.io/mode: Reconcile
 EOF
 
+echo 'Configure master taint'
+/usr/local/bin/kubectl taint nodes kube-master1 node-role.kubernetes.io/master=:NoSchedule
+
 echo 'Create Kubernetes dashboard'
 /usr/local/bin/kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
 
