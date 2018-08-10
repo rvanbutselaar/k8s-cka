@@ -458,7 +458,7 @@ EOF
 echo 'Configure master taint'
 /usr/local/bin/kubectl taint nodes kube-master1 node-role.kubernetes.io/master=:NoSchedule
 
-echo 'Create Kubernetes dashboard'
+echo 'Create Flannel'
 /usr/local/bin/kubectl apply -f /vagrant/kube-flannel.yml
 
 echo 'Create Kubernetes dashboard'
