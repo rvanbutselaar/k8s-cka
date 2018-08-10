@@ -27,4 +27,4 @@ sysctl -p
 echo 'Install requirements'
 yum install -y docker wget net-tools nmap-ncat
 
-systemctl enable docker && systemctl start docker
+systemctl enable docker && systemctl start docker tcpdump
